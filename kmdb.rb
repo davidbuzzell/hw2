@@ -84,6 +84,10 @@ Role.destroy_all
 Studio.destroy_all
 
 # Generate models and tables, according to the domain model.
+
+# Insert data into the database that reflects the sample data shown above.
+# Do not use hard-coded foreign key IDs.
+
 new_studio = Studio.new
 new_studio["name"] = "Warner Bros."
 new_studio.save
@@ -94,7 +98,6 @@ movies_data = [
   { "title" => "The Dark Knight", "year" => 2008 },
   { "title" => "The Dark Knight Rises", "year" => 2012 }
 ]
-
 for movie in movies_data
   new_movie = Movie.new
   new_movie["title"] = movie["title"]
@@ -109,25 +112,39 @@ actor_data = [
   { "name" => "Michael Caine"},
   { "name" => "Liam Neeson"},
   { "name" => "Katie Holmes"},
-  { "name" => "Gary Oldman"}
+  { "name" => "Gary Oldman"},
+  { "name" => "Heath Ledger"},
+  { "name" => "Aaron Eckhart"},
+  { "name" => "Maggie Gyllenhaal"},
+  { "name" => "Tom Hardy"},
+  { "name" => "Joseph Gordon-Levitt"},
+  { "name" => "Anne Hathaway"}
 ]
-
 for actor in actor_data
   new_actor = Actor.new
   new_actor["name"] = actor["name"]
   new_actor.save
 end
 
-batman_begins_roles_data = [
-  { "actor" => "Christian Bale", "character" => "Bruce Wayne"},
-  { "actor" => "Michael Caine", "character" => "Alfred"},
-  { "actor" => "Liam Neeson", "character" => "Ra's Al Ghul"},
-  { "actor" => "Katie Holmes", "character" => "Rachel Dawes"},
-  { "actor" => "Gary Oldman", "character" => "Commissioner Gordon"}
+roles_data = [
+  { "movie" => "Batman Begins", "actor" => "Christian Bale", "character" => "Bruce Wayne"},
+  { "movie" => "Batman Begins", "actor" => "Michael Caine", "character" => "Alfred"},
+  { "movie" => "Batman Begins", "actor" => "Liam Neeson", "character" => "Ra's Al Ghul"},
+  { "movie" => "Batman Begins", "actor" => "Katie Holmes", "character" => "Rachel Dawes"},
+  { "movie" => "Batman Begins", "actor" => "Gary Oldman", "character" => "Commissioner Gordon"},
+  { "movie" => "The Dark Knight", "actor" => "Christian Bale", "character" => "Bruce Wayne"},
+  { "movie" => "The Dark Knight", "actor" => "Heath Ledger", "character" => "Joker"},
+  { "movie" => "The Dark Knight", "actor" => "Aaron Eckhart", "character" => "Harvey Dent"},
+  { "movie" => "The Dark Knight", "actor" => "Michael Caine", "character" => "Alfred"},
+  { "movie" => "The Dark Knight", "actor" => "Maggie Gyllenhaal", "character" => "Rachel Dawes"},
+  { "movie" => "The Dark Knight Rises", "actor" => "Christian Bale", "character" => "Bruce Wayne"},
+  { "movie" => "The Dark Knight Rises", "actor" => "Gary Oldman", "character" => "Commissioner Gordon"},
+  { "movie" => "The Dark Knight Rises", "actor" => "Tom Hardy", "character" => "Bane"},
+  { "movie" => "The Dark Knight Rises", "actor" => "Joseph Gordon-Levitt", "character" => "John Blake"},
+  { "movie" => "The Dark Knight Rises", "actor" => "Anne Hathaway", "character" => "Selina Kyle"}
 ]
-
-movie = Movie.find_by({ "title" => "Batman Begins" })
-for role in batman_begins_roles_data
+for role in roles_data
+  movie = Movie.find_by({ "title" => role["movie"] })
   actor = Actor.find_by({ "name" => role["actor"] })
 
   new_role = Role.new
@@ -137,9 +154,17 @@ for role in batman_begins_roles_data
   new_role.save
 end
 
-# Insert data into the database that reflects the sample data shown above.
-# Do not use hard-coded foreign key IDs.
-# TODO!
+new_agent = Agent.new
+new_agent["name"] = "Ari Emanuel"
+new_agent.save
+
+aemanuel_agent = Agent.find_by({ "name" => "Ari Emanuel" })
+cbale_actor = Actor.find_by({ "name" => "Christian Bale" })
+cbale_actor["agent_id"] = aemanuel_agent["id"]
+cbale_actor.save
+
+# puts "#{aemanuel_agent["id"]}"
+# puts "#{cbale_actor["agent_id"]}"
 
 # Prints a header for the movies output
 puts "Movies"
@@ -147,7 +172,10 @@ puts "======"
 puts ""
 
 # Query the movies data and loop through the results to display the movies output.
-# TODO!
+for movie in Movie.all
+  studio = Studio.find_by({ "id" => movie["studio_id"] })
+  puts "#{movie["title"].ljust(20)}\t#{movie["year_released"]}\t#{movie["rated"]}\t#{studio["name"]}"
+end
 
 # Prints a header for the cast output
 puts ""
@@ -156,7 +184,11 @@ puts "========"
 puts ""
 
 # Query the cast data and loop through the results to display the cast output for each movie.
-# TODO!
+for role in Role.all
+  movie = Movie.find_by({ "id" => role["movie_id"] })
+  actor = Actor.find_by({ "id" => role["actor_id"] })
+  puts "#{movie["title"].ljust(20)}\t#{actor["name"].ljust(20)}\t#{role["character_name"]}"
+end
 
 # Prints a header for the agent's list of represented actors output
 puts ""
@@ -165,4 +197,7 @@ puts "===================="
 puts ""
 
 # Query the actor data and loop through the results to display the agent's list of represented actors output.
-# TODO!
+agent_actors = Actor.where({ "agent_id" => aemanuel_agent["id"] })
+for actor in agent_actors
+  puts "#{actor["name"]}"
+end

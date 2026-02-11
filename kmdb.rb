@@ -77,10 +77,65 @@
 
 # Delete existing data, so you'll start fresh each time this script is run.
 # Use `Model.destroy_all` code.
-# TODO!
+Actor.destroy_all
+Agent.destroy_all
+Movie.destroy_all
+Role.destroy_all
+Studio.destroy_all
 
 # Generate models and tables, according to the domain model.
-# TODO!
+new_studio = Studio.new
+new_studio["name"] = "Warner Bros."
+new_studio.save
+warner_bros = Studio.find_by({ "name" => "Warner Bros." })
+
+movies_data = [
+  { "title" => "Batman Begins", "year" => 2005 },
+  { "title" => "The Dark Knight", "year" => 2008 },
+  { "title" => "The Dark Knight Rises", "year" => 2012 }
+]
+
+for movie in movies_data
+  new_movie = Movie.new
+  new_movie["title"] = movie["title"]
+  new_movie["year_released"] = movie["year"]
+  new_movie["rated"] = "PG-13"
+  new_movie["studio_id"] = warner_bros["id"]
+  new_movie.save
+end
+
+actor_data = [
+  { "name" => "Christian Bale"},
+  { "name" => "Michael Caine"},
+  { "name" => "Liam Neeson"},
+  { "name" => "Katie Holmes"},
+  { "name" => "Gary Oldman"}
+]
+
+for actor in actor_data
+  new_actor = Actor.new
+  new_actor["name"] = actor["name"]
+  new_actor.save
+end
+
+batman_begins_roles_data = [
+  { "actor" => "Christian Bale", "character" => "Bruce Wayne"},
+  { "actor" => "Michael Caine", "character" => "Alfred"},
+  { "actor" => "Liam Neeson", "character" => "Ra's Al Ghul"},
+  { "actor" => "Katie Holmes", "character" => "Rachel Dawes"},
+  { "actor" => "Gary Oldman", "character" => "Commissioner Gordon"}
+]
+
+movie = Movie.find_by({ "title" => "Batman Begins" })
+for role in batman_begins_roles_data
+  actor = Actor.find_by({ "name" => role["actor"] })
+
+  new_role = Role.new
+  new_role["movie_id"] = movie["id"]
+  new_role["actor_id"] = actor["id"]
+  new_role["character_name"] = role["character"]
+  new_role.save
+end
 
 # Insert data into the database that reflects the sample data shown above.
 # Do not use hard-coded foreign key IDs.
